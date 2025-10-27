@@ -7,10 +7,11 @@ import ResetPassword from './components/ResetPassword';
 import ResetSuccess from './components/ResetSuccess';
 import Dashboard from './components/Dashboard';
 import StudentInfoForm from './components/StudentInfoForm';
+import ParentInfoForm from './components/ParentInfoForm';
 
 export default function App() {
    return (
-      <div className='min-h-screen bg-black flex items-center justify-center'>
+      <div className='min-h-screen bg-black flex items-center justify-center font-roboto'>
          <Router>
             <Routes>
                <Route path='/' element={<Login />} />
@@ -20,6 +21,7 @@ export default function App() {
 
                <Route path='/dashboard' element={<Dashboard />} />
                <Route path='/student-info-form' element={<StudentInfoForm />} />
+               <Route path='/parent-info-form' element={<ParentInfoForm />} />
             </Routes>
          </Router>
       </div>

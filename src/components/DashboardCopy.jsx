@@ -20,41 +20,152 @@ const SIDEBAR_OPTIONS = [
    { label: 'Option 5' },
 ];
 
-function getSortValue(row, key) {
-   switch (key) {
-      case 'enquiries':
-         return row.enquiries &&
-            row.enquiries.length > 0 &&
-            row.enquiries[0].walkin_date
-            ? row.enquiries[0].walkin_date
-            : '';
-      case 'addresses':
-         return row.addresses &&
-            row.addresses.length > 0 &&
-            row.addresses[0].city
-            ? row.addresses[0].city
-            : '';
-      case 'first_name':
-         return (row.first_name || '') + (row.last_name || '');
-      case 'hash_id':
-         return row.hash_id || '';
-      case 'mobile_number':
-         return row.mobile_number || '';
-      case 'created_at':
-         return row.enquiries &&
-            row.enquiries.length > 0 &&
-            row.enquiries[0].created_at
-            ? row.enquiries[0].created_at
-            : '';
-      default:
-         return row[key] || '';
-   }
+const FAKE_STUDENT_DATA = [
+   {
+      date: '09-Aug-2025 09:15 AM',
+      enquiryId: '1001',
+      name: 'Vipin Gusain',
+      mobile: '9876543100',
+      area: 'Hyderabad',
+      takenBy: 'Anil Sinha',
+      package: 'Keyboard',
+      leadType: 'Walk-in',
+      leadSource: 'Newspaper',
+      status: 'Admitted',
+      createdDate: '09-Aug-2025 09:16 AM',
+   },
+   {
+      date: '12-Aug-2025 11:35 AM',
+      enquiryId: '1002',
+      name: 'Gaurav Rajan',
+      mobile: '9821122334',
+      area: 'Delhi',
+      takenBy: 'Priya Verma',
+      package: 'Guitar',
+      leadType: 'Phone',
+      leadSource: 'Google',
+      status: 'Non Admitted',
+      createdDate: '12-Aug-2025 11:40 AM',
+   },
+   {
+      date: '19-Jul-2025 03:50 PM',
+      enquiryId: '1003',
+      name: 'Shriram',
+      mobile: '9899887766',
+      area: 'Pune',
+      takenBy: 'Vikas Jain',
+      package: 'Drums',
+      leadType: 'Online',
+      leadSource: 'Instagram',
+      status: 'Admitted',
+      createdDate: '19-Jul-2025 04:05 PM',
+   },
+   {
+      date: '01-Aug-2025 02:05 PM',
+      enquiryId: '1004',
+      name: 'Vadiraj Aralappanavar',
+      mobile: '9966442200',
+      area: 'Ahmedabad',
+      takenBy: 'Smita Rao',
+      package: 'Vocal',
+      leadType: 'Walk-in',
+      leadSource: 'Friend',
+      status: 'Admitted',
+      createdDate: '01-Aug-2025 02:07 PM',
+   },
+   {
+      date: '03-Aug-2025 10:25 AM',
+      enquiryId: '1005',
+      name: 'Sandeep Gupta',
+      mobile: '9933221100',
+      area: 'Bangalore',
+      takenBy: 'Ritu Chauhan',
+      package: 'Piano',
+      leadType: 'Phone',
+      leadSource: 'School',
+      status: 'Non Admitted',
+      createdDate: '03-Aug-2025 10:27 AM',
+   },
+   {
+      date: '15-Jul-2025 04:11 PM',
+      enquiryId: '1006',
+      name: 'Monika Singh',
+      mobile: '9812345678',
+      area: 'Kolkata',
+      takenBy: 'Manoj Nayak',
+      package: 'Guitar',
+      leadType: 'Online',
+      leadSource: 'Website',
+      status: 'Admitted',
+      createdDate: '15-Jul-2025 04:15 PM',
+   },
+   {
+      date: '25-Jul-2025 12:45 PM',
+      enquiryId: '1007',
+      name: 'Ankit Arora',
+      mobile: '9876501234',
+      area: 'Chennai',
+      takenBy: 'Kiran Patil',
+      package: 'Keyboard',
+      leadType: 'Walk-in',
+      leadSource: 'Flyer',
+      status: 'Non Admitted',
+      createdDate: '25-Jul-2025 12:47 PM',
+   },
+   {
+      date: '28-Jul-2025 02:50 PM',
+      enquiryId: '1008',
+      name: 'Pooja Nair',
+      mobile: '9898989898',
+      area: 'Mumbai',
+      takenBy: 'Jaspreet Kaur',
+      package: 'Piano',
+      leadType: 'Phone',
+      leadSource: 'Facebook',
+      status: 'Admitted',
+      createdDate: '28-Jul-2025 03:10 PM',
+   },
+   {
+      date: '18-Aug-2025 09:59 AM',
+      enquiryId: '1009',
+      name: 'Rahul Rathod',
+      mobile: '9900112233',
+      area: 'Lucknow',
+      takenBy: 'Priyanka Mehta',
+      package: 'Drums',
+      leadType: 'Online',
+      leadSource: 'Google',
+      status: 'Admitted',
+      createdDate: '18-Aug-2025 10:01 AM',
+   },
+   {
+      date: '24-Aug-2025 05:30 PM',
+      enquiryId: '1010',
+      name: 'Sneha Vyas',
+      mobile: '9876123456',
+      area: 'Surat',
+      takenBy: 'Aashish Joshi',
+      package: 'Vocal',
+      leadType: 'Walk-in',
+      leadSource: 'Banner',
+      status: 'Non Admitted',
+      createdDate: '24-Aug-2025 05:35 PM',
+   },
+];
+
+/// Helper for date comparison
+function parseDate(str) {
+   let [day, month, yearAndRest] = str.split('-');
+   let [year, time, ampm] = yearAndRest.trim().split(' ');
+   return new Date(`${month} ${day} ${year} ${time} ${ampm}`);
 }
 
 export default function Dashboard() {
    const [expanded, setExpanded] = useState(true);
    const [openMenu, setOpenMenu] = useState(null);
    const [activeSubMenu, setActiveSubMenu] = useState('Students');
+
+   // Table filter/search/pagination state
    const [studentData, setStudentData] = useState([]);
    const [fromDate, setFromDate] = useState('');
    const [toDate, setToDate] = useState('');
@@ -63,48 +174,35 @@ export default function Dashboard() {
    const [recordsPerPage, setRecordsPerPage] = useState(10);
    const [page, setPage] = useState(1);
 
-   // State for selected rows
-   const [selectedRows, setSelectedRows] = useState([]);
-
-   // Default sort by name for real API
+   // Initialize sortConfig with default sort key and direction to show icon on load
    const [sortConfig, setSortConfig] = useState({
-      key: 'first_name',
+      key: 'date',
       direction: 'asc',
    });
 
+   // State for selected rows
+   const [selectedRows, setSelectedRows] = useState([]);
+
    useEffect(() => {
-      fetch('http://localhost:8000/api/users', {
-         headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-         },
-      })
-         .then((res) => res.json())
-         .then((data) => setStudentData(data))
-         .catch((err) => {
-            console.error('API fetch error:', err);
-            setStudentData([]);
-         });
+      setTimeout(() => setStudentData(FAKE_STUDENT_DATA), 400);
    }, []);
 
    useEffect(() => {
       let rows = [...studentData];
-
-      // Filtering (no date filter here, but you could use it for created_at etc)
-      if (search.trim().length > 0) {
-         const s = search.trim().toLowerCase();
-         rows = rows.filter((r) =>
-            Object.values(r).join(' ').toLowerCase().includes(s)
-         );
-      }
-
-      // Sorting
+      // Apply sorting first
       if (sortConfig.key) {
          rows.sort((a, b) => {
-            let aVal = getSortValue(a, sortConfig.key);
-            let bVal = getSortValue(b, sortConfig.key);
-            if (typeof aVal === 'string') aVal = aVal.toLowerCase();
-            if (typeof bVal === 'string') bVal = bVal.toLowerCase();
+            let aVal = a[sortConfig.key];
+            let bVal = b[sortConfig.key];
+
+            // Parse dates for proper comparison
+            if (sortConfig.key === 'date' || sortConfig.key === 'createdDate') {
+               aVal = parseDate(aVal);
+               bVal = parseDate(bVal);
+            } else {
+               aVal = aVal.toString().toLowerCase();
+               bVal = bVal.toString().toLowerCase();
+            }
 
             if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
             if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
@@ -112,42 +210,46 @@ export default function Dashboard() {
          });
       }
 
+      // Filtering based on date range and search
+      if (fromDate)
+         rows = rows.filter((r) => parseDate(r.date) >= new Date(fromDate));
+      if (toDate)
+         rows = rows.filter((r) => parseDate(r.date) <= new Date(toDate));
+      if (search.trim().length > 0) {
+         const s = search.trim().toLowerCase();
+         rows = rows.filter((r) =>
+            Object.values(r).join(' ').toLowerCase().includes(s)
+         );
+      }
+
       setFiltered(rows);
       setPage(1);
    }, [studentData, sortConfig, fromDate, toDate, search]);
 
+   // Pagination data
    const totalPages = Math.ceil(filtered.length / recordsPerPage);
    const pagedRows = filtered.slice(
       (page - 1) * recordsPerPage,
       page * recordsPerPage
    );
 
+   // Handle page change
    function handlePageChange(p) {
       if (p < 1 || p > totalPages) return;
       setPage(p);
    }
 
-   function handleSort(key) {
+   // Handle sorting on header click
+   const handleSort = (key) => {
       let direction = 'asc';
       if (sortConfig.key === key && sortConfig.direction === 'asc') {
          direction = 'desc';
       }
       setSortConfig({ key, direction });
-   }
-
-   // Checkbox handlers
-   const handleRowCheckboxChange = (id, checked) => {
-      setSelectedRows((prev) =>
-         checked ? [...prev, id] : prev.filter((rowId) => rowId !== id)
-      );
    };
-   const isChecked = (id) => selectedRows.includes(id);
 
-   // Determine button enabled/disabled state
-   const onlyOneSelected = selectedRows.length === 1;
-   const multipleSelected = selectedRows.length > 1;
-
-   function renderSortIcon(key) {
+   // Show both sort directions as faded and highlight active one
+   const renderSortIcon = (key) => {
       return (
          <span
             className='inline-flex items-center  ml-1 flex flex-col text-gray-400'
@@ -178,12 +280,24 @@ export default function Dashboard() {
             />
          </span>
       );
-   }
+   };
+
+   // Checkbox handlers
+   const handleRowCheckboxChange = (id, checked) => {
+      setSelectedRows((prev) =>
+         checked ? [...prev, id] : prev.filter((rowId) => rowId !== id)
+      );
+   };
+   const isChecked = (id) => selectedRows.includes(id);
+
+   // Determine button enabled/disabled state
+   const onlyOneSelected = selectedRows.length === 1;
+   const multipleSelected = selectedRows.length > 1;
 
    return (
-      <div className='h-screen w-screen bg-[#EDEDED] flex flex-col'>
+      <div className='h-screen w-screen bg-gray-100 flex flex-col'>
          {/* Top nav bar */}
-         <div className='h-14 bg-[#EDEDED] flex items-center px-6 shadow-sm'>
+         <div className='h-14 bg-gray-100 flex items-center px-6 shadow-sm'>
             <button onClick={() => setExpanded((exp) => !exp)} className='mr-5'>
                <FaBars size={24} />
             </button>
@@ -191,10 +305,11 @@ export default function Dashboard() {
                {expanded ? 'Collapse' : 'expand'}
             </span>
          </div>
+
          <div className='flex flex-1 overflow-hidden'>
             {/* Sidebar */}
             <div
-               className={`bg-[#EDEDED] pt-8 pb-6 transition-all duration-300 ${
+               className={`bg-gray-100 pt-8 pb-6 transition-all duration-300 ${
                   expanded ? 'w-64' : 'w-16'
                }`}>
                <div className='flex flex-col h-full'>
@@ -255,6 +370,7 @@ export default function Dashboard() {
                   </div>
                </div>
             </div>
+
             {/* Main Content Area */}
             <div className='flex-1 bg-white p-6 overflow-y-auto'>
                {activeSubMenu === 'Students' && (
@@ -278,6 +394,25 @@ export default function Dashboard() {
                            </button>
                         </div>
                      </div>
+
+                     {/* ACTION BUTTONS SHOWN ONLY IF CHECKBOXES SELECTED */}
+                     {/* {selectedRows.length > 0 && (
+                        <div className='flex gap-2 mb-3'>
+                           <button className='bg-[#e3f1ff] text-black px-6 py-1 rounded border border-blue-200 shadow'>
+                              View
+                           </button>
+                           <button className='bg-[#e3f1ff] text-black px-6 py-1 rounded border border-blue-200 shadow'>
+                              Edit
+                           </button>
+                           <button className='bg-[#2196f3] text-white px-6 py-1 rounded shadow'>
+                              Add New
+                           </button>
+                           <button className='bg-[#f44336] text-white px-6 py-1 rounded shadow'>
+                              Delete
+                           </button>
+                        </div>
+                     )} */}
+
                      <div className='flex items-center mb-2 gap-2'>
                         <select
                            className='border border-gray-300 px-2 py-1 rounded w-20'
@@ -292,25 +427,24 @@ export default function Dashboard() {
                            ))}
                         </select>
                         <span className='mr-2 text-sm'>records per page</span>
-                        {/* Add fromDate/toDate filters if needed */}
-                        <div className='ml-auto flex items-center'>
+                        <label className='mr-1 text-sm'>
+                           From:
                            <input
-                              placeholder='Search'
-                              className='border border-gray-300 px-3 py-1 rounded text-sm mr-1'
-                              style={{ width: 120 }}
-                              value={search}
-                              onChange={(e) => setSearch(e.target.value)}
+                              type='date'
+                              className='border border-gray-300 px-2 py-1 rounded ml-1'
+                              value={fromDate}
+                              onChange={(e) => setFromDate(e.target.value)}
                            />
-                           <button
-                              className='bg-green-600 text-white px-2 py-1 rounded mr-1'
-                              onClick={() => setSearch('')}
-                              title='Reset Search'>
-                              &#8635;
-                           </button>
-                           <button className='bg-teal-600 text-white px-2 py-1 rounded ml-1'>
-                              &#9881;
-                           </button>
-                        </div>
+                        </label>
+                        <label className='mr-4 text-sm'>
+                           To:
+                           <input
+                              type='date'
+                              className='border border-gray-300 px-2 py-1 rounded ml-1'
+                              value={toDate}
+                              onChange={(e) => setToDate(e.target.value)}
+                           />
+                        </label>
 
                         {/* Action buttons with conditional enables */}
                         {selectedRows.length > 0 && (
@@ -355,6 +489,24 @@ export default function Dashboard() {
                               </button>
                            </div>
                         )}
+                        <div className='ml-auto flex items-center'>
+                           <input
+                              placeholder='Search'
+                              className='border border-gray-300 px-3 py-1 rounded text-sm mr-1'
+                              style={{ width: 120 }}
+                              value={search}
+                              onChange={(e) => setSearch(e.target.value)}
+                           />
+                           <button
+                              className='bg-green-600 text-white px-2 py-1 rounded mr-1'
+                              onClick={() => setSearch('')}
+                              title='Reset Search'>
+                              &#8635;
+                           </button>
+                           <button className='bg-teal-600 text-white px-2 py-1 rounded ml-1'>
+                              &#9881;
+                           </button>
+                        </div>
                      </div>
                      <div className='overflow-x-auto'>
                         <table className='min-w-full border border-gray-300 mt-2'>
@@ -362,94 +514,105 @@ export default function Dashboard() {
                               <tr className='bg-[#f7f7f7] text-xs font-semibold border-b'>
                                  <th
                                     className='px-1 py-2 border-r cursor-pointer select-none'
-                                    onClick={() => handleSort('enquiries')}>
+                                    onClick={() => handleSort('date')}>
                                     ENQUIRY/WALK IN DATE{' '}
-                                    {renderSortIcon('enquiries')}
+                                    {renderSortIcon('date')}
                                  </th>
                                  <th
                                     className='px-1 py-2 border-r cursor-pointer select-none'
-                                    onClick={() => handleSort('hash_id')}>
-                                    ENQUIRY ID {renderSortIcon('hash_id')}
+                                    onClick={() => handleSort('enquiryId')}>
+                                    ENQUIRY ID {renderSortIcon('enquiryId')}
                                  </th>
                                  <th
                                     className='px-1 py-2 border-r cursor-pointer select-none'
-                                    onClick={() => handleSort('first_name')}>
-                                    STUDENT NAME {renderSortIcon('first_name')}
+                                    onClick={() => handleSort('name')}>
+                                    STUDENT NAME {renderSortIcon('name')}
                                  </th>
                                  <th
                                     className='px-1 py-2 border-r cursor-pointer select-none'
-                                    onClick={() => handleSort('mobile_number')}>
-                                    MOBILE {renderSortIcon('mobile_number')}
+                                    onClick={() => handleSort('mobile')}>
+                                    MOBILE {renderSortIcon('mobile')}
                                  </th>
                                  <th
                                     className='px-1 py-2 border-r cursor-pointer select-none'
-                                    onClick={() => handleSort('addresses')}>
-                                    AREA {renderSortIcon('addresses')}
+                                    onClick={() => handleSort('area')}>
+                                    AREA {renderSortIcon('area')}
                                  </th>
-                                 <th className='px-1 py-2 border-r'>COURSE</th>
-                                 <th className='px-1 py-2 border-r'>
-                                    LEAD TYPE
+                                 <th
+                                    className='px-1 py-2 border-r cursor-pointer select-none'
+                                    onClick={() => handleSort('takenBy')}>
+                                    ENQUIRY TAKEN BY {renderSortIcon('takenBy')}
                                  </th>
-                                 <th className='px-1 py-2 border-r'>
-                                    LEAD SOURCE
+                                 <th
+                                    className='px-1 py-2 border-r cursor-pointer select-none'
+                                    onClick={() => handleSort('package')}>
+                                    COURSE PACKAGE {renderSortIcon('package')}
                                  </th>
-                                 <th className='px-1 py-2 border-r'>
-                                    CREATED DATE
+                                 <th
+                                    className='px-1 py-2 border-r cursor-pointer select-none'
+                                    onClick={() => handleSort('leadType')}>
+                                    LEAD TYPE {renderSortIcon('leadType')}
                                  </th>
+                                 <th
+                                    className='px-1 py-2 border-r cursor-pointer select-none'
+                                    onClick={() => handleSort('leadSource')}>
+                                    LEAD SOURCE {renderSortIcon('leadSource')}
+                                 </th>
+                                 <th
+                                    className='px-1 py-2 border-r cursor-pointer select-none'
+                                    onClick={() => handleSort('status')}>
+                                    STATUS {renderSortIcon('status')}
+                                 </th>
+                                 <th
+                                    className='px-1 py-2 border-r cursor-pointer select-none'
+                                    onClick={() => handleSort('createdDate')}>
+                                    CREATED DATE {renderSortIcon('createdDate')}
+                                 </th>
+                                 <th className='px-1 py-2'></th>
                               </tr>
                            </thead>
+
                            <tbody>
                               {pagedRows.map((row, idx) => (
                                  <tr key={idx} className='text-sm border-b'>
                                     <td className='px-2 py-1 border-r'>
-                                       {row.enquiries &&
-                                       row.enquiries.length > 0
-                                          ? row.enquiries[0].walkin_date ||
-                                            'No enquirie'
-                                          : 'No enquirie'}
+                                       {row.date}
                                     </td>
                                     <td className='px-2 py-1 border-r'>
-                                       {row.hash_id}
+                                       {row.enquiryId}
                                     </td>
                                     <td className='px-2 py-1 border-r'>
-                                       {row.first_name} {row.last_name}
+                                       {row.name}
                                     </td>
                                     <td className='px-2 py-1 border-r'>
-                                       {row.mobile_number}
+                                       {row.mobile}
                                     </td>
                                     <td className='px-2 py-1 border-r'>
-                                       {row.addresses &&
-                                       row.addresses.length > 0
-                                          ? row.addresses[0].city ||
-                                            'No address'
-                                          : 'No address'}
+                                       {row.area}
                                     </td>
                                     <td className='px-2 py-1 border-r'>
-                                       {row.enquiries &&
-                                       row.enquiries.length > 0
-                                          ? row.enquiries[0].cource || 'N/A'
-                                          : 'No course'}
+                                       {row.takenBy}
                                     </td>
                                     <td className='px-2 py-1 border-r'>
-                                       {row.enquiries &&
-                                       row.enquiries.length > 0
-                                          ? row.enquiries[0].type || 'N/A'
-                                          : 'No type'}
+                                       {row.package}
                                     </td>
                                     <td className='px-2 py-1 border-r'>
-                                       {row.enquiries &&
-                                       row.enquiries.length > 0
-                                          ? row.enquiries[0].source || 'N/A'
-                                          : 'No source'}
+                                       {row.leadType}
                                     </td>
                                     <td className='px-2 py-1 border-r'>
-                                       {row.enquiries &&
-                                       row.enquiries.length > 0
-                                          ? row.enquiries[0].created_at ||
-                                            'No created date'
-                                          : 'No created date'}
+                                       {row.leadSource}
                                     </td>
-
+                                    <td
+                                       className={`px-2 py-1 border-r font-semibold ${
+                                          row.status === 'Admitted'
+                                             ? 'text-[#51B04A]'
+                                             : 'text-yellow-600'
+                                       }`}>
+                                       {row.status}
+                                    </td>
+                                    <td className='px-2 py-1 border-r'>
+                                       {row.createdDate}
+                                    </td>
                                     <td className='px-2 py-1 text-center'>
                                        <input
                                           type='checkbox'
