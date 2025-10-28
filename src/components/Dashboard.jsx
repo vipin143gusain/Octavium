@@ -386,15 +386,46 @@ export default function Dashboard() {
                                     onClick={() => handleSort('addresses')}>
                                     AREA {renderSortIcon('addresses')}
                                  </th>
-                                 <th className='px-1 py-2 border-r'>COURSE</th>
-                                 <th className='px-1 py-2 border-r'>
+
+                                 <th
+                                    className='px-1 py-2 border-r cursor-pointer select-none'
+                                    onClick={() => handleSort('addresses')}>
+                                    ENQUIRY TAKEN BY
+                                    {renderSortIcon('addresses')}
+                                 </th>
+                                 <th
+                                    className='px-1 py-2 border-r cursor-pointer select-none'
+                                    onClick={() => handleSort('addresses')}>
+                                    COURSE PACKAGE
+                                    {renderSortIcon('addresses')}
+                                 </th>
+                                 <th
+                                    className='px-1 py-2 border-r cursor-pointer select-none'
+                                    onClick={() => handleSort('addresses')}>
                                     LEAD TYPE
+                                    {renderSortIcon('addresses')}
                                  </th>
-                                 <th className='px-1 py-2 border-r'>
+                                 <th
+                                    className='px-1 py-2 border-r cursor-pointer select-none'
+                                    onClick={() => handleSort('addresses')}>
                                     LEAD SOURCE
+                                    {renderSortIcon('addresses')}
                                  </th>
-                                 <th className='px-1 py-2 border-r'>
+                                 <th
+                                    className='px-1 py-2 border-r cursor-pointer select-none'
+                                    onClick={() => handleSort('addresses')}>
+                                    STATUS
+                                    {renderSortIcon('addresses')}
+                                 </th>
+                                 <th
+                                    className='px-1 py-2 border-r cursor-pointer select-none'
+                                    onClick={() => handleSort('addresses')}>
                                     CREATED DATE
+                                    {renderSortIcon('addresses')}
+                                 </th>
+
+                                 <th>
+                                    <input type='checkbox' />
                                  </th>
                               </tr>
                            </thead>
@@ -424,6 +455,7 @@ export default function Dashboard() {
                                             'No address'
                                           : 'No address'}
                                     </td>
+                                    <td className='px-2 py-1 border-r'>N/A</td>
                                     <td className='px-2 py-1 border-r'>
                                        {row.enquiries &&
                                        row.enquiries.length > 0
@@ -442,6 +474,19 @@ export default function Dashboard() {
                                           ? row.enquiries[0].source || 'N/A'
                                           : 'No source'}
                                     </td>
+
+                                    <td className='px-2 py-1 border-r'>
+                                       {row.is_active ? (
+                                          <span className='text-green-600 font-bold'>
+                                             Active
+                                          </span>
+                                       ) : (
+                                          <span className='text-red-600 font-bold'>
+                                             Not Active
+                                          </span>
+                                       )}
+                                    </td>
+
                                     <td className='px-2 py-1 border-r'>
                                        {row.enquiries &&
                                        row.enquiries.length > 0
