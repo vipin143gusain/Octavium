@@ -63,6 +63,8 @@ export default function Dashboard() {
    const [recordsPerPage, setRecordsPerPage] = useState(10);
    const [page, setPage] = useState(1);
 
+   const [selectAll, setSelectAll] = useState(false);
+
    // State for selected rows
    const [selectedRows, setSelectedRows] = useState([]);
 
@@ -93,9 +95,25 @@ export default function Dashboard() {
       // Filtering (no date filter here, but you could use it for created_at etc)
       if (search.trim().length > 0) {
          const s = search.trim().toLowerCase();
-         rows = rows.filter((r) =>
-            Object.values(r).join(' ').toLowerCase().includes(s)
-         );
+         rows = rows.filter((r) => {
+            const combined = [
+               r.first_name,
+               r.last_name,
+               r.mobile_number,
+               r.hash_id,
+               r.is_active ? 'active' : 'not active',
+               r.addresses?.[0]?.city,
+               r.enquiries?.[0]?.walkin_date,
+               r.enquiries?.[0]?.cource,
+               r.enquiries?.[0]?.source,
+               r.enquiries?.[0]?.type,
+            ]
+               .filter(Boolean)
+               .join(' ')
+               .toLowerCase();
+
+            return combined.includes(s);
+         });
       }
 
       // Sorting
@@ -122,6 +140,16 @@ export default function Dashboard() {
       page * recordsPerPage
    );
 
+   useEffect(() => {
+      if (selectedRows.length === 0) {
+         setSelectAll(false);
+      } else if (selectedRows.length === pagedRows.length) {
+         setSelectAll(true);
+      } else {
+         setSelectAll(false);
+      }
+   }, [selectedRows, pagedRows]);
+
    function handlePageChange(p) {
       if (p < 1 || p > totalPages) return;
       setPage(p);
@@ -138,9 +166,12 @@ export default function Dashboard() {
    // Checkbox handlers
    const handleRowCheckboxChange = (id, checked) => {
       setSelectedRows((prev) =>
-         checked ? [...prev, id] : prev.filter((rowId) => rowId !== id)
+         checked
+            ? Array.from(new Set([...prev, id]))
+            : prev.filter((rowId) => rowId !== id)
       );
    };
+
    const isChecked = (id) => selectedRows.includes(id);
 
    // Determine button enabled/disabled state
@@ -425,7 +456,22 @@ export default function Dashboard() {
                                  </th>
 
                                  <th>
-                                    <input type='checkbox' />
+                                    <input
+                                       type='checkbox'
+                                       checked={selectAll}
+                                       onChange={(e) => {
+                                          const checked = e.target.checked;
+                                          setSelectAll(checked);
+                                          if (checked) {
+                                             // ✅ select all visible rows by hash_id
+                                             setSelectedRows(
+                                                pagedRows.map((r) => r.hash_id)
+                                             );
+                                          } else {
+                                             setSelectedRows([]);
+                                          }
+                                       }}
+                                    />
                                  </th>
                               </tr>
                            </thead>
@@ -498,10 +544,10 @@ export default function Dashboard() {
                                     <td className='px-2 py-1 text-center'>
                                        <input
                                           type='checkbox'
-                                          checked={isChecked(row.enquiryId)}
+                                          checked={isChecked(row.hash_id)}
                                           onChange={(e) =>
                                              handleRowCheckboxChange(
-                                                row.enquiryId,
+                                                row.hash_id,
                                                 e.target.checked
                                              )
                                           }
