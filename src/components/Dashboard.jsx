@@ -187,6 +187,38 @@ export default function Dashboard() {
    const onlyOneSelected = selectedRows.length === 1;
    const multipleSelected = selectedRows.length > 1;
 
+   const handleDelete = async () => {
+      if (selectedRows.length === 0) return;
+
+      const confirmDelete = window.confirm(
+         `Are you sure you want to delete ${selectedRows.length} record(s)?`
+      );
+      if (!confirmDelete) return;
+
+      try {
+         for (const id of selectedRows) {
+            await fetch(`http://localhost:8000/api/users/${id}`, {
+               method: 'DELETE',
+               headers: {
+                  Accept: 'application/json',
+                  'Content-Type': 'application/json',
+               },
+            });
+         }
+
+         // ✅ Remove deleted users from state immediately (no re-fetch needed)
+         setStudentData((prev) =>
+            prev.filter((user) => !selectedRows.includes(user.hash_id))
+         );
+
+         setSelectedRows([]); // clear selection
+         alert('Selected record(s) deleted successfully.');
+      } catch (error) {
+         console.error('Error deleting user:', error);
+         alert('Failed to delete user(s). Please try again.');
+      }
+   };
+
    function renderSortIcon(key) {
       return (
          <span
@@ -384,12 +416,11 @@ export default function Dashboard() {
                                  Add New
                               </button>
                               <button
-                                 disabled={
-                                    selectedRows.length === 0 ? true : false
-                                 }
+                                 onClick={handleDelete}
+                                 disabled={selectedRows.length === 0}
                                  className={`px-6 py-1 rounded shadow text-sm ${
                                     selectedRows.length > 0
-                                       ? 'bg-[#f44336] text-white'
+                                       ? 'bg-[#f44336] text-white hover:bg-red-700'
                                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                  }`}>
                                  Delete

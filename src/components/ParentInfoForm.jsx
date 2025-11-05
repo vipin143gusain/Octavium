@@ -157,38 +157,9 @@ export default function ParentInfoPageUI() {
 
    return (
       <form
-         className='bg-[#efefef] min-h-screen px-3 py-3 font-sans'
+         className=' min-h-screen px-6 py-3 font-sans'
          onSubmit={handleSubmit}>
-         <div className='max-w-6xl mx-auto bg-[#fff] rounded shadow-none'>
-            <div className='font-bold text-3xl mt-1 mb-1 ml-2'>Parent Info</div>
-            <div className='border-b mx-2' />
-
-            {/* Filling for Row */}
-            <div className='flex gap-8 ml-2 mt-4 mb-7'>
-               <label className='text-lg'>
-                  <input
-                     type='radio'
-                     name='fillingFor'
-                     value='student'
-                     checked={form.fillingFor === 'student'}
-                     onChange={handleChange}
-                     className='accent-gray-600 mr-2'
-                  />
-                  Filling Up for Student
-               </label>
-               <label className='text-lg'>
-                  <input
-                     type='radio'
-                     name='fillingFor'
-                     value='parent'
-                     checked={form.fillingFor === 'parent'}
-                     onChange={handleChange}
-                     className='accent-blue-600 mr-2'
-                  />
-                  Filling Up for Parent
-               </label>
-            </div>
-
+         <div className=' mx-auto bg-[#fff] rounded shadow-none'>
             {/* Top grid group */}
             <div className='grid grid-cols-2 gap-4 mb-4'>
                {/* Left: Parent Details */}
