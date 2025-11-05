@@ -20,7 +20,11 @@ export default function App() {
                <Route path='/reset-success' element={<ResetSuccess />} />
 
                <Route path='/dashboard' element={<Dashboard />} />
-               <Route path='/student-info-form' element={<StudentInfoForm />} />
+               {/* <Route path='/student-info-form' element={<StudentInfoForm />} /> */}
+               <Route
+                  path='/student-info-form/:hashId'
+                  element={<StudentInfoForm />}
+               />
                <Route path='/parent-info-form' element={<ParentInfoForm />} />
             </Routes>
          </Router>

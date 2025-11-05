@@ -1,29 +1,48 @@
 /** @format */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export default function StudentInfoForm() {
+   const { hashId } = useParams();
+   const [student, setStudent] = useState(null);
+   const [loading, setLoading] = useState(true);
+
+   const navigate = useNavigate();
+
+   useEffect(() => {
+      if (hashId) {
+         fetch(`http://localhost:8000/api/users/${hashId}`, {
+            headers: {
+               Accept: 'application/json',
+               'Content-Type': 'application/json',
+            },
+         })
+            .then((res) => res.json())
+            .then((data) => {
+               setStudent(data);
+               setLoading(false);
+            })
+            .catch((err) => {
+               console.error('Error fetching user data:', err);
+               setLoading(false);
+            });
+      }
+   }, [hashId]);
+
+   if (loading) return <div className='p-10 text-gray-500'>Loading...</div>;
+   if (!student)
+      return <div className='p-10 text-red-500'>User not found.</div>;
+
    return (
       <div className='min-h-screen bg-gray-100'>
-         {/* Top nav and logo */}
-         <div className='flex items-center bg-white h-16 px-4 border-b'>
-            <button className='mr-3'>
-               <svg
-                  width={24}
-                  height={24}
-                  fill='currentColor'
-                  className='text-gray-700'>
-                  <rect width='20' height='3' x='2' y='5' rx='1' />
-                  <rect width='20' height='3' x='2' y='10.5' rx='1' />
-                  <rect width='20' height='3' x='2' y='16' rx='1' />
-               </svg>
-            </button>
-            <img
-               src='https://i.ibb.co/Zc7p64r/octavium-logo.png'
-               alt='Logo'
-               className='h-10'
-            />
-         </div>
+         <button
+            className='bg-gray-300 text-black px-7 py-2 rounded font-semibold'
+            onClick={() => navigate(-1)}>
+            Back
+         </button>
+
          <div className='py-2 px-6 text-xl font-semibold'>Student Info</div>
 
          {/* Radio Selector */}
@@ -60,46 +79,33 @@ export default function StudentInfoForm() {
                         <label className='block text-xs font-medium'>
                            First Name
                         </label>
-                        <input className='border rounded px-2 py-1 w-full' />
+                        <input
+                           className='border rounded px-2 py-1 w-full'
+                           value={student.first_name || ''}
+                           onChange={(e) =>
+                              setStudent({
+                                 ...student,
+                                 first_name: e.target.value,
+                              })
+                           }
+                        />
                         <label className='block text-xs font-medium mt-2'>
                            DOB
                         </label>
                         <div className='flex gap-2'>
-                           <input
-                              className='border rounded px-2 py-1 w-24'
-                              value='Today'
-                              readOnly
-                           />
-                           {/* Calendar mockup */}
-                           <div className='bg-white border rounded shadow text-xs w-56 p-2'>
-                              <div className='flex justify-between mb-2 font-semibold'>
-                                 <span>September 2021</span>
-                                 <span className='text-blue-700 cursor-pointer'>
-                                    &#128197;
-                                 </span>
-                              </div>
-                              <div className='grid grid-cols-7 text-center text-gray-500 mb-1'>
-                                 <span>SAN</span>
-                                 <span>MON</span>
-                                 <span>TUE</span>
-                                 <span>WED</span>
-                                 <span>THU</span>
-                                 <span>FRI</span>
-                                 <span>SAT</span>
-                              </div>
-                              <div className='grid grid-cols-7 gap-1 text-center'>
-                                 {[...Array(30)].map((_, i) => (
-                                    <span
-                                       key={i}
-                                       className={`px-2 py-1 rounded ${
-                                          i === 18
-                                             ? 'bg-blue-600 text-white'
-                                             : ''
-                                       }`}>
-                                       {i + 1}
-                                    </span>
-                                 ))}
-                              </div>
+                           <div>
+                              <input
+                                 className='input w-44'
+                                 type='date'
+                                 name='dob'
+                                 value={student.dob || ''}
+                                 onChange={(e) =>
+                                    setStudent({
+                                       ...student,
+                                       dob: e.target.value,
+                                    })
+                                 }
+                              />
                            </div>
                         </div>
                         <div className='mt-3 flex gap-7 items-center'>
@@ -109,40 +115,84 @@ export default function StudentInfoForm() {
                                  <input
                                     type='radio'
                                     name='gender'
-                                    defaultChecked
+                                    value='male'
+                                    checked={student.gender === 'male'}
+                                    onChange={(e) =>
+                                       setStudent((prev) => ({
+                                          ...prev,
+                                          gender: e.target.value,
+                                       }))
+                                    }
                                     className='accent-blue-600'
-                                 />{' '}
+                                 />
                                  Male
                               </label>
+
                               <label className='flex items-center gap-1'>
                                  <input
                                     type='radio'
                                     name='gender'
+                                    value='female'
+                                    checked={student.gender === 'female'}
+                                    onChange={(e) =>
+                                       setStudent((prev) => ({
+                                          ...prev,
+                                          gender: e.target.value,
+                                       }))
+                                    }
                                     className='accent-blue-600'
-                                 />{' '}
+                                 />
                                  Female
                               </label>
+
                               <label className='flex items-center gap-1'>
                                  <input
                                     type='radio'
                                     name='gender'
+                                    value='others'
+                                    checked={student.gender === 'others'}
+                                    onChange={(e) =>
+                                       setStudent((prev) => ({
+                                          ...prev,
+                                          gender: e.target.value,
+                                       }))
+                                    }
                                     className='accent-blue-600'
-                                 />{' '}
+                                 />
                                  Others
                               </label>
                            </div>
                         </div>
+
                         <div className='mt-2'>
                            <label className='block text-xs font-medium'>
                               Stream
                            </label>
-                           <input className='border rounded px-2 py-1 w-full' />
+                           <input
+                              className='border rounded px-2 py-1 w-full'
+                              value={student.stream || ''}
+                              onChange={(e) =>
+                                 setStudent({
+                                    ...student,
+                                    stream: e.target.value,
+                                 })
+                              }
+                           />
                         </div>
                         <div className='mt-2'>
                            <label className='block text-xs font-medium'>
                               Mother Tongue
                            </label>
-                           <input className='border rounded px-2 py-1 w-full' />
+                           <input
+                              className='border rounded px-2 py-1 w-full'
+                              value={student.mother_tongue || ''}
+                              onChange={(e) =>
+                                 setStudent({
+                                    ...student,
+                                    mother_tongue: e.target.value,
+                                 })
+                              }
+                           />
                         </div>
                      </div>
                      <div className='space-y-2 flex flex-col justify-between'>
@@ -150,7 +200,16 @@ export default function StudentInfoForm() {
                            <label className='block text-xs font-medium mb-1'>
                               Last Name
                            </label>
-                           <input className='border rounded px-2 py-1 w-full' />
+                           <input
+                              className='border rounded px-2 py-1 w-full'
+                              value={student.last_name || ''}
+                              onChange={(e) =>
+                                 setStudent({
+                                    ...student,
+                                    last_name: e.target.value,
+                                 })
+                              }
+                           />
                         </div>
                         <div>
                            <label className='block text-xs font-medium mb-1'>
@@ -190,13 +249,41 @@ export default function StudentInfoForm() {
                            <label className='block text-xs font-medium'>
                               Address line 1
                            </label>
-                           <input className='border rounded px-2 py-1 w-full' />
+                           <input
+                              className='border rounded px-2 py-1 w-full'
+                              value={
+                                 student.addresses &&
+                                 student.addresses.length > 0
+                                    ? student.addresses[0].line_1
+                                    : ''
+                              }
+                              onChange={(e) =>
+                                 setStudent({
+                                    ...student,
+                                    addresses: e.target.value,
+                                 })
+                              }
+                           />
                         </div>
                         <div className='w-1/2'>
                            <label className='block text-xs font-medium'>
                               Address line 2
                            </label>
-                           <input className='border rounded px-2 py-1 w-full' />
+                           <input
+                              className='border rounded px-2 py-1 w-full'
+                              value={
+                                 student.addresses &&
+                                 student.addresses.length > 0
+                                    ? student.addresses[0].line_2
+                                    : ''
+                              }
+                              onChange={(e) =>
+                                 setStudent({
+                                    ...student,
+                                    addresses: e.target.value,
+                                 })
+                              }
+                           />
                         </div>
                      </div>
                      <div className='flex gap-2 items-end'>
@@ -204,19 +291,56 @@ export default function StudentInfoForm() {
                            <label className='block text-xs font-medium'>
                               Zipcode
                            </label>
-                           <input className='border rounded px-2 py-1 w-full' />
+                           <input
+                              className='border rounded px-2 py-1 w-full'
+                              value={student.addresses?.[0]?.zip || ''}
+                              onChange={(e) =>
+                                 setStudent({
+                                    ...student,
+                                    addresses: e.target.value,
+                                 })
+                              }
+                           />
                         </div>
                         <div className='w-1/4'>
                            <label className='block text-xs font-medium'>
                               City
                            </label>
-                           <input className='border rounded px-2 py-1 w-full' />
+                           <input
+                              className='border rounded px-2 py-1 w-full'
+                              value={
+                                 student.addresses &&
+                                 student.addresses.length > 0
+                                    ? student.addresses[0].city
+                                    : ''
+                              }
+                              onChange={(e) =>
+                                 setStudent({
+                                    ...student,
+                                    addresses: e.target.value,
+                                 })
+                              }
+                           />
                         </div>
                         <div className='w-1/4'>
                            <label className='block text-xs font-medium'>
                               State
                            </label>
-                           <input className='border rounded px-2 py-1 w-full' />
+                           <input
+                              className='border rounded px-2 py-1 w-full'
+                              value={
+                                 student.addresses &&
+                                 student.addresses.length > 0
+                                    ? student.addresses[0].state
+                                    : ''
+                              }
+                              onChange={(e) =>
+                                 setStudent({
+                                    ...student,
+                                    addresses: e.target.value,
+                                 })
+                              }
+                           />
                         </div>
                         <div className='w-1/4'>
                            <label className='block text-xs font-medium'>
@@ -224,8 +348,18 @@ export default function StudentInfoForm() {
                            </label>
                            <input
                               className='border rounded px-2 py-1 w-full'
-                              value='India'
-                              readOnly
+                              value={
+                                 student.addresses &&
+                                 student.addresses.length > 0
+                                    ? student.addresses[0].country
+                                    : ''
+                              }
+                              onChange={(e) =>
+                                 setStudent({
+                                    ...student,
+                                    addresses: e.target.value,
+                                 })
+                              }
                            />
                         </div>
                      </div>
@@ -246,7 +380,16 @@ export default function StudentInfoForm() {
                            <label className='block text-xs font-medium'>
                               Mobile No.
                            </label>
-                           <input className='border rounded px-2 py-1 w-full' />
+                           <input
+                              className='border rounded px-2 py-1 w-full'
+                              value={student.mobile_number || ''}
+                              onChange={(e) =>
+                                 setStudent({
+                                    ...student,
+                                    mobile_number: e.target.value,
+                                 })
+                              }
+                           />
                         </div>
                         <label className='flex items-center gap-1 text-xs mt-5'>
                            <input
@@ -262,7 +405,16 @@ export default function StudentInfoForm() {
                            <label className='block text-xs font-medium'>
                               Email Id
                            </label>
-                           <input className='border rounded px-2 py-1 w-full' />
+                           <input
+                              className='border rounded px-2 py-1 w-full'
+                              value={student.email_id || ''}
+                              onChange={(e) =>
+                                 setStudent({
+                                    ...student,
+                                    email_id: e.target.value,
+                                 })
+                              }
+                           />
                         </div>
                         <label className='flex items-center gap-1 text-xs mt-5'>
                            <input
@@ -299,6 +451,25 @@ export default function StudentInfoForm() {
                         <input
                            type='date'
                            className='border rounded px-2 py-1 w-full'
+                           value={
+                              student.enquiries?.[0]?.walkin_date
+                                 ? student.enquiries[0].walkin_date.split(
+                                      ' '
+                                   )[0] // ✅ Take only the date part
+                                 : ''
+                           }
+                           onChange={(e) => {
+                              const newDate = e.target.value; // e.g. "2025-10-18"
+                              setStudent((prev) => ({
+                                 ...prev,
+                                 enquiries: [
+                                    {
+                                       ...prev.enquiries?.[0],
+                                       walkin_date: `${newDate} 00:00:00`, // ✅ Add time if needed for API
+                                    },
+                                 ],
+                              }));
+                           }}
                         />
                      </div>
                      <div>
@@ -306,11 +477,36 @@ export default function StudentInfoForm() {
                            Time
                         </label>
                         <input
+                           type='time'
                            className='border rounded px-2 py-1 w-full'
-                           value='11:33:23 AM'
-                           readOnly
+                           value={
+                              student.enquiries?.[0]?.walkin_date
+                                 ? student.enquiries[0].walkin_date
+                                      .split(' ')[1]
+                                      ?.slice(0, 5) // "10:00"
+                                 : ''
+                           }
+                           onChange={(e) => {
+                              const newTime = e.target.value; // e.g. "14:30"
+                              setStudent((prev) => {
+                                 const datePart =
+                                    prev.enquiries?.[0]?.walkin_date?.split(
+                                       ' '
+                                    )[0] || '2025-01-01';
+                                 return {
+                                    ...prev,
+                                    enquiries: [
+                                       {
+                                          ...prev.enquiries?.[0],
+                                          walkin_date: `${datePart} ${newTime}:00`, // combine date + new time
+                                       },
+                                    ],
+                                 };
+                              });
+                           }}
                         />
                      </div>
+
                      <div>
                         <label className='block text-xs font-medium'>
                            Enquiry received by
@@ -324,7 +520,16 @@ export default function StudentInfoForm() {
                            Instrument of Interest
                         </label>
                         <select className='border rounded px-2 py-1 w-full'>
-                           <option></option>
+                           <option
+                              value={student.enquiries?.[0]?.instruments || ''}
+                              onChange={(e) =>
+                                 setStudent({
+                                    ...student,
+                                    instruments: e.target.value,
+                                 })
+                              }>
+                              {student.enquiries?.[0]?.instruments || ''}
+                           </option>
                         </select>
                      </div>
                      <div className='col-span-2'>
@@ -332,7 +537,17 @@ export default function StudentInfoForm() {
                            Select Course
                         </label>
                         <select className='border rounded px-2 py-1 w-full'>
-                           <option>Course 1</option>
+                           <option
+                              value={student.enquiries?.[0]?.cource || ''}
+                              onChange={(e) =>
+                                 setStudent({
+                                    ...student,
+                                    cource: e.target.value,
+                                 })
+                              }>
+                              {student.enquiries?.[0]?.cource || ''}
+                           </option>
+
                            <option>Course 2</option>
                            <option>Course 3</option>
                         </select>
@@ -342,7 +557,16 @@ export default function StudentInfoForm() {
                            Lead Source
                         </label>
                         <select className='border rounded px-2 py-1 w-full'>
-                           <option></option>
+                           <option
+                              value={student.enquiries?.[0]?.source || ''}
+                              onChange={(e) =>
+                                 setStudent({
+                                    ...student,
+                                    source: e.target.value,
+                                 })
+                              }>
+                              {student.enquiries?.[0]?.source || ''}
+                           </option>
                         </select>
                      </div>
                      <div>
@@ -350,14 +574,32 @@ export default function StudentInfoForm() {
                            Lead Type
                         </label>
                         <select className='border rounded px-2 py-1 w-full'>
-                           <option></option>
+                           <option
+                              value={student.enquiries?.[0]?.type || ''}
+                              onChange={(e) =>
+                                 setStudent({
+                                    ...student,
+                                    type: e.target.value,
+                                 })
+                              }>
+                              {student.enquiries?.[0]?.type || ''}
+                           </option>
                         </select>
                      </div>
                      <div className='col-span-2'>
                         <label className='block text-xs font-medium'>
                            Remark
                         </label>
-                        <input className='border rounded px-2 py-1 w-full' />
+                        <input
+                           className='border rounded px-2 py-1 w-full'
+                           value={student.enquiries?.[0]?.remarks || ''}
+                           onChange={(e) =>
+                              setStudent({
+                                 ...student,
+                                 remarks: e.target.value,
+                              })
+                           }
+                        />
                      </div>
                      <div>
                         <label className='block text-xs font-medium'>
@@ -390,14 +632,56 @@ export default function StudentInfoForm() {
                         <input
                            type='date'
                            className='border rounded px-2 py-1 w-full'
+                           value={
+                              student.enquiries?.[0]?.follow_date
+                                 ? student.enquiries[0].follow_date.split(
+                                      ' '
+                                   )[0] // ✅ Take only the date part
+                                 : ''
+                           }
+                           onChange={(e) => {
+                              const newDate = e.target.value; // e.g. "2025-10-18"
+                              setStudent((prev) => ({
+                                 ...prev,
+                                 enquiries: [
+                                    {
+                                       ...prev.enquiries?.[0],
+                                       follow_date: `${newDate} 00:00:00`, // ✅ Add time if needed for API
+                                    },
+                                 ],
+                              }));
+                           }}
                         />
                         <label className='block text-xs font-medium mt-2'>
                            Follow Up Time
                         </label>
                         <input
                            className='border rounded px-2 py-1 w-full'
-                           value='11:33:23 AM'
-                           readOnly
+                           value={
+                              student.enquiries?.[0]?.walkin_date
+                                 ? student.enquiries[0].walkin_date
+                                      .split(' ')[1]
+                                      ?.slice(0, 5) // "10:00"
+                                 : ''
+                           }
+                           onChange={(e) => {
+                              const newTime = e.target.value; // e.g. "14:30"
+                              setStudent((prev) => {
+                                 const datePart =
+                                    prev.enquiries?.[0]?.walkin_date?.split(
+                                       ' '
+                                    )[0] || '2025-01-01';
+                                 return {
+                                    ...prev,
+                                    enquiries: [
+                                       {
+                                          ...prev.enquiries?.[0],
+                                          walkin_date: `${datePart} ${newTime}:00`, // combine date + new time
+                                       },
+                                    ],
+                                 };
+                              });
+                           }}
                         />
                      </div>
                   </div>

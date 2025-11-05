@@ -8,6 +8,7 @@ import {
    FaSortUp,
    FaSortDown,
 } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const SIDEBAR_OPTIONS = [
    {
@@ -67,6 +68,14 @@ export default function Dashboard() {
 
    // State for selected rows
    const [selectedRows, setSelectedRows] = useState([]);
+
+   const navigate = useNavigate();
+   const handleView = () => {
+      if (selectedRows.length === 1) {
+         const hashId = selectedRows[0];
+         navigate(`/student-info-form/${hashId}`);
+      }
+   };
 
    // Default sort by name for real API
    const [sortConfig, setSortConfig] = useState({
@@ -347,6 +356,7 @@ export default function Dashboard() {
                         {selectedRows.length > 0 && (
                            <div className='flex gap-2'>
                               <button
+                                 onClick={handleView}
                                  disabled={!onlyOneSelected}
                                  className={`px-6 py-1 rounded border border-blue-200 shadow text-sm ${
                                     onlyOneSelected
