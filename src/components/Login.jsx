@@ -59,8 +59,8 @@ const Login = () => {
    }, [success, navigate]);
 
    return (
-      <div className='min-h-screen flex items-center justify-center bg-black'>
-         <div className='bg-black shadow-lg p-10 w-full'>
+      <div className='min-h-screen flex items-center justify-center bg-[#290062]'>
+         <div className='shadow-lg p-10 w-full'>
             {/* Logo */}
             <div className='flex justify-center mb-10'>
                <img src={LogoOctaivum} alt='Octavium Logo' className='h-20' />

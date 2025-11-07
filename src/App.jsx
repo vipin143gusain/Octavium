@@ -11,7 +11,7 @@ import ParentInfoForm from './components/ParentInfoForm';
 
 export default function App() {
    return (
-      <div className='min-h-screen bg-black flex items-center justify-center font-roboto'>
+      <div className='min-h-screen bg-[#290062] flex items-center justify-center font-roboto'>
          <Router>
             <Routes>
                <Route path='/' element={<Login />} />

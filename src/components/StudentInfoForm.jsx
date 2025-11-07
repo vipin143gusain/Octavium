@@ -230,7 +230,10 @@ export default function StudentInfoForm() {
                                  </label>
                                  <div className='flex gap-2'>
                                     <div className='border w-24 h-20 rounded flex flex-col items-center justify-center text-gray-500 text-xs'>
-                                       Capture Image
+                                       <img
+                                          className='w-20'
+                                          src='https://marketplace.canva.com/EAF-FAvfD1E/2/0/1600w/canva-neon-rainbow-gradient-fun-creative-linkedin-profile-picture-IYcgPnJtx3Q.jpg'
+                                       />
                                     </div>
                                     <div className='border w-24 h-20 rounded flex flex-col items-center justify-center text-gray-500 text-xs'>
                                        Preview

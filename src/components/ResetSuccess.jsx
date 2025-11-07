@@ -7,8 +7,8 @@ import LogoOctaivum from '../assets/images/login/octaviumLogo.png';
 export default function ResetSuccess() {
    const navigate = useNavigate();
    return (
-      <div className='min-h-screen flex items-center justify-center bg-black'>
-         <div className='bg-black shadow-lg p-10 w-full'>
+      <div className='min-h-screen flex items-center justify-center '>
+         <div className=' shadow-lg p-10 w-full'>
             {/* Logo */}
             <div className='flex justify-center mb-10'>
                <img src={LogoOctaivum} alt='Octavium Logo' className='h-20' />

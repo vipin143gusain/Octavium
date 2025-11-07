@@ -74,7 +74,7 @@ export default function CapturePhotoComponent() {
          <div className='flex gap-3 mb-2'>
             <div>
                <div className='w-40 border rounded-t py-1 text-center bg-[#fafafa] font-medium text-sm border-b-0'>
-                  Capture Image
+                  Capture Images
                </div>
                <div className='w-40 h-40 border rounded-b flex items-center justify-center bg-white overflow-hidden'>
                   {capturedImage ? (
