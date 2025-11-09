@@ -12,6 +12,8 @@ import {
    FaSortDown,
    FaSignOutAlt,
 } from 'react-icons/fa';
+import { FaUserCircle, FaCog } from 'react-icons/fa';
+
 import { useNavigate } from 'react-router-dom';
 import octaviumLogo from '../assets/images/login/octaviumLogo.png';
 
@@ -77,6 +79,8 @@ export default function Dashboard() {
 
    const [showDeleteModal, setShowDeleteModal] = useState(false);
    const [isDeleting, setIsDeleting] = useState(false);
+
+   const [showUserMenu, setShowUserMenu] = useState(false);
 
    const navigate = useNavigate();
    const handleView = () => {
@@ -229,11 +233,8 @@ export default function Dashboard() {
    };
 
    const handleLogout = () => {
-      // Optional: clear stored tokens or session data
       localStorage.removeItem('token');
       sessionStorage.clear();
-
-      // Navigate back to login page
       navigate('/');
    };
 
@@ -339,24 +340,61 @@ export default function Dashboard() {
          )}
 
          {/* Top nav bar */}
-         <div className='h-14 bg-[#EDEDED] flex items-center justify-between px-6 shadow-sm'>
+         <div className='h-14 bg-[#EDEDED] flex items-center justify-between px-6 shadow-sm relative'>
+            {/* Left side — hamburger */}
             <div className='flex items-center'>
                <button
                   onClick={() => setExpanded((exp) => !exp)}
                   className='mr-5'>
                   <FaBars size={24} />
                </button>
-               {/* You can optionally show app name here */}
-               {/* <span className='text-lg font-semibold text-gray-700'>Dashboard</span> */}
             </div>
 
-            {/* ✅ Logout Button */}
-            <button
-               onClick={handleLogout}
-               className='flex items-center gap-2 bg-[#d32f2f] text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-[#b71c1c] transition-colors'>
-               <FaSignOutAlt size={14} />
-               Logout
-            </button>
+            {/* Right side — user menu */}
+            <div className='relative'>
+               {/* User icon */}
+               <button
+                  onClick={() => setShowUserMenu((prev) => !prev)}
+                  className='flex items-center gap-2 focus:outline-none'>
+                  <FaUserCircle
+                     size={28}
+                     className='text-purple-700 hover:text-gray-900 transition-colors'
+                  />
+                  <span className='hidden sm:inline text-sm font-medium text-gray-700'>
+                     Vipin
+                  </span>
+               </button>
+
+               {/* Dropdown menu */}
+               {showUserMenu && (
+                  <div
+                     className='absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg border border-gray-200 z-50'
+                     onMouseLeave={() => setShowUserMenu(false)}>
+                     <button
+                        className='flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100'
+                        onClick={() => {
+                           setShowUserMenu(false);
+                           navigate('/profile');
+                        }}>
+                        <FaUser className='mr-2 text-gray-500' /> Profile
+                     </button>
+                     <button
+                        className='flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100'
+                        onClick={() => {
+                           setShowUserMenu(false);
+                           navigate('/settings');
+                        }}>
+                        <FaCog className='mr-2 text-gray-500' /> Settings
+                     </button>
+                     <hr className='my-1 border-gray-200' />
+                     <button
+                        className='flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50'
+                        onClick={handleLogout}>
+                        <FaSignOutAlt className='mr-2 text-red-500' /> Logout
+                     </button>
+                  </div>
+               )}
+            </div>
          </div>
 
          <div className='flex flex-1 overflow-hidden'>
