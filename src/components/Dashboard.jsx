@@ -97,7 +97,7 @@ export default function Dashboard() {
    });
 
    useEffect(() => {
-      fetch('http://localhost:8000/api/users', {
+      fetch('http://localhost:8000/api/users?per_page=200&limit=1000', {
          headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
