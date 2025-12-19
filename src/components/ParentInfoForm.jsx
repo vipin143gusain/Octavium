@@ -2,8 +2,84 @@
 
 import React, { useState } from 'react';
 import CapturePhotoComponent from './CapturePhotoComponent';
+import { useParams } from 'react-router-dom';
+import { useEffect } from 'react';
+
+function mapGuardianToParentForm(student = {}) {
+   const guardians = Array.isArray(student.guardians) ? student.guardians : [];
+
+   const father = guardians.find(
+      (g) => g.relation_ship?.toLowerCase() === 'father'
+   );
+   const mother = guardians.find(
+      (g) => g.relation_ship?.toLowerCase() === 'mother'
+   );
+
+   const address =
+      Array.isArray(student.addresses) && student.addresses.length > 0
+         ? student.addresses[0]
+         : {};
+
+   return {
+      fillingFor: 'parent',
+
+      // 👨 Father
+      fatherFirstName: father?.first_name || '',
+      fatherLastName: father?.last_name || '',
+      fatherEmail: father?.email_id || '',
+      primaryMobile: father?.mobile_number || '',
+
+      // 👩 Mother
+      motherFirstName: mother?.first_name || '',
+      motherLastName: mother?.last_name || '',
+      motherEmail: mother?.email_id || '',
+
+      // Shared
+      secondaryMobile: '',
+      relationship: father ? 'Father' : 'Mother',
+
+      address1: address.line_1 || '',
+      address2: address.line_2 || '',
+      city: address.city || '',
+      state: address.state || '',
+      zipcode: address.zip || '',
+      country: address.country || 'India',
+
+      dob: father?.dob || mother?.dob || '',
+      gender: father?.gender
+         ? father.gender.charAt(0).toUpperCase() + father.gender.slice(1)
+         : mother?.gender
+         ? mother.gender.charAt(0).toUpperCase() + mother.gender.slice(1)
+         : 'Male',
+
+      stream: student.stream || '',
+      motherTongue: student.mother_tongue || '',
+
+      unsubFather: false,
+      unsubMother: false,
+
+      // enquiry (optional)
+      walkinDate: student.enquiries?.[0]?.walkin_date?.split(' ')[0] || '',
+      walkinTime:
+         student.enquiries?.[0]?.walkin_date?.split(' ')[1]?.slice(0, 5) || '',
+      instrument: student.enquiries?.[0]?.instruments || '',
+      selectedCourse: student.enquiries?.[0]?.cource || '',
+      leadSource: student.enquiries?.[0]?.source || '',
+      leadType: student.enquiries?.[0]?.type || '',
+      remark: student.enquiries?.[0]?.remarks || '',
+      followUpNeeded: student.enquiries?.[0]?.is_follow ? 'Yes' : 'No',
+      followUpDate: student.enquiries?.[0]?.follow_date?.split(' ')[0] || '',
+      followUpTime:
+         student.enquiries?.[0]?.follow_date?.split(' ')[1]?.slice(0, 5) || '',
+   };
+}
 
 export default function ParentInfoPageUI() {
+   const { hashId } = useParams();
+
+   const isViewMode = !!hashId;
+   const isEditable = !isViewMode; // same pattern as student
+
    const [form, setForm] = useState({
       fillingFor: 'parent',
       fatherFirstName: '',
@@ -47,19 +123,12 @@ export default function ParentInfoPageUI() {
    const [touched, setTouched] = useState({});
 
    const handleChange = (e) => {
+      if (!isEditable) return;
       const { name, type, checked, value } = e.target;
       setForm((f) => ({
          ...f,
          [name]: type === 'checkbox' ? checked : value,
       }));
-
-      // Clear error when user starts typing
-      if (errors[name]) {
-         setErrors((prev) => ({
-            ...prev,
-            [name]: '',
-         }));
-      }
    };
 
    const handleBlur = (fieldName) => {
@@ -155,6 +224,28 @@ export default function ParentInfoPageUI() {
       }`;
    };
 
+   useEffect(() => {
+      if (!hashId) return;
+
+      fetch(`http://localhost:8000/api/users/${hashId}`, {
+         headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+         },
+      })
+         .then((res) => {
+            if (!res.ok) throw new Error('Failed to fetch student');
+            return res.json();
+         })
+         .then((student) => {
+            // ✅ Father + Mother both rendered
+            setForm(mapGuardianToParentForm(student));
+         })
+         .catch((err) => {
+            console.error('Parent fetch error:', err);
+         });
+   }, [hashId]);
+
    return (
       <form
          className=' min-h-screen px-6 py-3 font-sans'
@@ -176,6 +267,7 @@ export default function ParentInfoPageUI() {
                         Father First Name<span className='text-red-500'>*</span>
                      </label>
                      <input
+                        disabled={!isEditable}
                         className={getInputClassName('fatherFirstName')}
                         name='fatherFirstName'
                         value={form.fatherFirstName}
@@ -186,6 +278,7 @@ export default function ParentInfoPageUI() {
                         Father Last Name<span className='text-red-500'>*</span>
                      </label>
                      <input
+                        disabled={!isEditable}
                         className={getInputClassName('fatherLastName')}
                         name='fatherLastName'
                         value={form.fatherLastName}
@@ -196,6 +289,7 @@ export default function ParentInfoPageUI() {
                         Mother First Name<span className='text-red-500'>*</span>
                      </label>
                      <input
+                        disabled={!isEditable}
                         className={getInputClassName('motherFirstName')}
                         name='motherFirstName'
                         value={form.motherFirstName}
@@ -206,6 +300,7 @@ export default function ParentInfoPageUI() {
                         Mother Last Name<span className='text-red-500'>*</span>
                      </label>
                      <input
+                        disabled={!isEditable}
                         className={getInputClassName('motherLastName')}
                         name='motherLastName'
                         value={form.motherLastName}
@@ -218,6 +313,7 @@ export default function ParentInfoPageUI() {
                      </label>
                      <div className='col-span-3'>
                         <input
+                           disabled={!isEditable}
                            className={getInputClassName('primaryMobile')}
                            name='primaryMobile'
                            value={form.primaryMobile}
@@ -233,6 +329,7 @@ export default function ParentInfoPageUI() {
                      </div>
                      <label className='col-start-3 flex items-center gap-1 text-xs'>
                         <input
+                           disabled={!isEditable}
                            type='checkbox'
                            className='accent-blue-600 w-5 h-5'
                            checked={form.whatsappPreferred}
@@ -243,6 +340,7 @@ export default function ParentInfoPageUI() {
                      </label>
                      <label className='flex items-center gap-1 text-xs'>
                         <input
+                           disabled={!isEditable}
                            type='checkbox'
                            className='accent-blue-600 w-5 h-5'
                            checked={form.smsOptOutPrimary}
@@ -256,6 +354,7 @@ export default function ParentInfoPageUI() {
                      <label>Secondry Mobile No.</label>
                      <div className='col-span-2'>
                         <input
+                           disabled={!isEditable}
                            className={getInputClassName('secondaryMobile')}
                            name='secondaryMobile'
                            value={form.secondaryMobile}
@@ -271,6 +370,7 @@ export default function ParentInfoPageUI() {
                      </div>
                      <label className='flex items-center gap-1'>
                         <input
+                           disabled={!isEditable}
                            type='checkbox'
                            className='accent-blue-600 w-5 h-5'
                            checked={form.smsOptOutSecondary}
@@ -288,6 +388,7 @@ export default function ParentInfoPageUI() {
                      </label>
                      <div className='flex-1'>
                         <input
+                           disabled={!isEditable}
                            className={getInputClassName('address1')}
                            name='address1'
                            value={form.address1}
@@ -304,6 +405,7 @@ export default function ParentInfoPageUI() {
                   <div className='flex gap-2 items-center'>
                      <label className='w-[105px]'>Address line 2</label>
                      <input
+                        disabled={!isEditable}
                         className='input flex-1'
                         name='address2'
                         value={form.address2}
@@ -316,6 +418,7 @@ export default function ParentInfoPageUI() {
                      </label>
                      <div>
                         <input
+                           disabled={!isEditable}
                            className={`${getInputClassName('zipcode')} w-20`}
                            name='zipcode'
                            value={form.zipcode}
@@ -334,6 +437,7 @@ export default function ParentInfoPageUI() {
                      </label>
                      <div>
                         <input
+                           disabled={!isEditable}
                            className={`${getInputClassName('city')} w-20`}
                            name='city'
                            value={form.city}
@@ -369,7 +473,8 @@ export default function ParentInfoPageUI() {
                      </div>
                      <label className='w-[52px]'>Country</label>
                      <input
-                        className='input w-20'
+                        disabled={!isEditable}
+                        className='input   w-20'
                         name='country'
                         value='India'
                         readOnly
@@ -390,6 +495,7 @@ export default function ParentInfoPageUI() {
                         <span>Relationship with Student</span>
                         <label className='flex items-center gap-2'>
                            <input
+                              disabled={!isEditable}
                               type='radio'
                               name='relationship'
                               value='Father'
@@ -400,6 +506,7 @@ export default function ParentInfoPageUI() {
                         </label>
                         <label className='flex items-center gap-2'>
                            <input
+                              disabled={!isEditable}
                               type='radio'
                               name='relationship'
                               value='Mother'
@@ -413,6 +520,7 @@ export default function ParentInfoPageUI() {
                         <div>
                            <label className='block mb-1'>DOB</label>
                            <input
+                              disabled={!isEditable}
                               className='input w-44'
                               type='date'
                               name='dob'
@@ -428,6 +536,7 @@ export default function ParentInfoPageUI() {
                            <div className='flex items-left mb-5'>
                               <label>
                                  <input
+                                    disabled={!isEditable}
                                     className='mr-2'
                                     type='radio'
                                     name='gender'
@@ -441,6 +550,7 @@ export default function ParentInfoPageUI() {
                            <div className='flex items-center mb-5'>
                               <label>
                                  <input
+                                    disabled={!isEditable}
                                     className='mr-2'
                                     type='radio'
                                     name='gender'
@@ -486,6 +596,7 @@ export default function ParentInfoPageUI() {
                         <div>
                            <label className='block mb-1'>Mother Tongue</label>
                            <input
+                              disabled={!isEditable}
                               className='input w-[177px]'
                               name='motherTongue'
                               value={form.motherTongue}
@@ -506,6 +617,7 @@ export default function ParentInfoPageUI() {
                      <div className='flex gap-2 items-center'>
                         <label className='w-[90px]'>Walkin Date</label>
                         <input
+                           disabled={!isEditable}
                            className='input w-44'
                            type='date'
                            name='walkinDate'
@@ -514,6 +626,7 @@ export default function ParentInfoPageUI() {
                         />
                         <label className='w-[40px] text-right'>Time</label>
                         <input
+                           disabled={!isEditable}
                            className='input w-44'
                            type='time'
                            name='walkinTime'
@@ -535,6 +648,7 @@ export default function ParentInfoPageUI() {
                      <div>
                         <label>Instrument of Interest</label>
                         <input
+                           disabled={!isEditable}
                            className='input w-full'
                            name='instrument'
                            value={form.instrument}
@@ -577,6 +691,7 @@ export default function ParentInfoPageUI() {
                      <div>
                         <label>Remark</label>
                         <input
+                           disabled={!isEditable}
                            className='input w-full'
                            name='remark'
                            value={form.remark}
@@ -587,6 +702,7 @@ export default function ParentInfoPageUI() {
                         <span className='text-base'>Is follow up needed</span>
                         <label className='flex items-center gap-2'>
                            <input
+                              disabled={!isEditable}
                               type='radio'
                               name='followUpNeeded'
                               value='Yes'
@@ -610,6 +726,7 @@ export default function ParentInfoPageUI() {
                         <div>
                            <label className='block mb-1'>Follow Up Date</label>
                            <input
+                              disabled={!isEditable}
                               className='input w-44'
                               type='date'
                               name='followUpDate'
@@ -646,6 +763,7 @@ export default function ParentInfoPageUI() {
                         </label>
                         <div className='w-64'>
                            <input
+                              disabled={!isEditable}
                               className={getInputClassName('motherEmail')}
                               name='motherEmail'
                               type='email'
@@ -661,6 +779,7 @@ export default function ParentInfoPageUI() {
                         </div>
                         <label className='flex items-center gap-1'>
                            <input
+                              disabled={!isEditable}
                               type='checkbox'
                               checked={form.unsubMother}
                               name='unsubMother'
@@ -676,6 +795,7 @@ export default function ParentInfoPageUI() {
                         </label>
                         <div className='w-64 ml-1'>
                            <input
+                              disabled={!isEditable}
                               className={getInputClassName('fatherEmail')}
                               name='fatherEmail'
                               type='email'
@@ -691,6 +811,7 @@ export default function ParentInfoPageUI() {
                         </div>
                         <label className='flex items-center gap-1'>
                            <input
+                              disabled={!isEditable}
                               type='checkbox'
                               checked={form.unsubFather}
                               name='unsubFather'

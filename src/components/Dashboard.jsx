@@ -104,15 +104,18 @@ export default function Dashboard() {
          },
       })
          .then((res) => res.json())
-         .then((data) => setStudentData(data))
-         .catch((err) => {
-            console.error('API fetch error:', err);
-            setStudentData([]);
+         .then((data) => {
+            if (Array.isArray(data)) {
+               setStudentData(data);
+            } else {
+               console.error('❌ API returned non-array:', data);
+               setStudentData([]); // safe fallback
+            }
          });
    }, []);
 
    useEffect(() => {
-      let rows = [...studentData];
+      let rows = Array.isArray(studentData) ? [...studentData] : [];
 
       // Filtering (no date filter here, but you could use it for created_at etc)
       if (search.trim().length > 0) {
@@ -184,6 +187,11 @@ export default function Dashboard() {
       }
       setSortConfig({ key, direction });
    }
+
+   // NAVIGATION handlers Edit
+   const handleEdit = () => {
+      if (onlyOneSelected) navigate(`/student-info-form/${selectedRows[0]}`); // edit mode (hashId)
+   };
 
    // Checkbox handlers
    const handleRowCheckboxChange = (id, checked) => {
@@ -543,6 +551,16 @@ export default function Dashboard() {
                            </button>
                         </div>
 
+                        <button
+                           onClick={() => navigate('/student-info-form')} // ✅ no hashId = create mode
+                           className={`px-6 py-1 rounded shadow text-sm ${
+                              onlyOneSelected || selectedRows.length >= 0 // always allow Add New
+                                 ? 'bg-[#2196f3] text-white'
+                                 : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                           }`}>
+                           Add New
+                        </button>
+
                         {/* Action buttons with conditional enables */}
                         {selectedRows.length > 0 && (
                            <div className='flex gap-2'>
@@ -557,23 +575,25 @@ export default function Dashboard() {
                                  View
                               </button>
                               <button
+                                 onClick={handleEdit}
                                  disabled={!onlyOneSelected}
-                                 className={`px-6 py-1 rounded border border-blue-200 shadow text-sm ${
+                                 className={`px-4 py-1 rounded ml-2 ${
                                     onlyOneSelected
-                                       ? 'bg-[#e3f1ff] text-black'
-                                       : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                       ? 'bg-yellow-400 text-black'
+                                       : 'bg-gray-200 text-gray-500 cursor-not-allowed'
                                  }`}>
                                  Edit
                               </button>
-                              <button
-                                 disabled={!onlyOneSelected}
+                              {/* <button
+                                 onClick={() => navigate('/student-info-form')} // ✅ no hashId = create mode
                                  className={`px-6 py-1 rounded shadow text-sm ${
-                                    onlyOneSelected
+                                    onlyOneSelected || selectedRows.length >= 0 // always allow Add New
                                        ? 'bg-[#2196f3] text-white'
                                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                  }`}>
                                  Add New
-                              </button>
+                              </button> */}
+
                               <button
                                  onClick={() => setShowDeleteModal(true)}
                                  disabled={selectedRows.length === 0}
