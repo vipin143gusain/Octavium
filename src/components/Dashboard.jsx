@@ -1,6 +1,7 @@
 /** @format */
 
 import React, { useState, useEffect } from 'react';
+import DashboardParent from './DashboardParent';
 import {
    FaChevronRight,
    FaBars,
@@ -87,6 +88,9 @@ export default function Dashboard() {
       if (selectedRows.length === 1) {
          const hashId = selectedRows[0];
          navigate(`/student-info-form/${hashId}`);
+      }
+      if (activeSubMenu === 'Parents') {
+         navigate(`/parent-info-form/${hashId}`);
       }
    };
 
@@ -822,6 +826,12 @@ export default function Dashboard() {
                            </button>
                         </div>
                      </div>
+                  </>
+               )}
+
+               {activeSubMenu === 'Parents' && (
+                  <>
+                     <DashboardParent />
                   </>
                )}
             </div>

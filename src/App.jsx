@@ -13,10 +13,14 @@ import OrganizationViewPage from './components/OrganizationViewPage';
 import { AdminSuperAdminPage } from './components/AdminSuperAdminPage';
 import { CompanyListPage } from './components/CompanyListPage';
 import { CompanyListSelectedPage } from './components/CompanyListWhenUserClickAnyOrganization';
+import DashboardParent from './components/DashboardParent';
+import CatalogueManagement from './components/CatalogueManagement';
+import CatalogueBulkUpload from './components/CatalogueBulkUpload';
+import CourseBundling from './components/CourseBundling';
 
 export default function App() {
    return (
-      <div className='min-h-screen bg-[#290062] flex items-center justify-center font-roboto'>
+      <div className='min-h-screen bg-white flex items-center justify-center font-roboto'>
          <Router>
             <Routes>
                <Route path='/' element={<Login />} />
@@ -24,6 +28,7 @@ export default function App() {
                <Route path='/reset-password' element={<ResetPassword />} />
                <Route path='/reset-success' element={<ResetSuccess />} />
                <Route path='/dashboard' element={<Dashboard />} />
+               <Route path='/dashboard/parents' element={<DashboardParent />} />
                {/* <Route path='/student-info-form' element={<StudentInfoForm />} /> */}
                {/* <Route
                   path='/student-info-form/:hashId'
@@ -52,11 +57,21 @@ export default function App() {
                   element={<AdminSuperAdminPage />}
                />
                <Route path='/company-list-page' element={<CompanyListPage />} />
-               <Route path='/company-list-page' element={<CompanyListPage />} />
+               <Route
+                  path='/catalogue-management'
+                  element={<CatalogueManagement />}
+               />
                <Route
                   path='/company-list-selected-page'
                   element={<CompanyListSelectedPage />}
                />
+
+               <Route
+                  path='/catalogue-bulk-upload'
+                  element={<CatalogueBulkUpload />}
+               />
+
+               <Route path='/course-bundling' element={<CourseBundling />} />
             </Routes>
          </Router>
       </div>
